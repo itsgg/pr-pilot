@@ -1020,5 +1020,5 @@ For additional help:
 - 📖 [README.md](README.md) - Setup and usage guide
 - 🏗️ [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture
 - 🤝 [CONTRIBUTING.md](CONTRIBUTING.md) - Contributing guidelines
-- 🐛 [GitHub Issues](https://github.com/your-username/pr-pilot/issues) - Bug reports
-- 💬 [GitHub Discussions](https://github.com/your-username/pr-pilot/discussions) - Questions and discussions
+- 🐛 [GitHub Issues](https://github.com/itsgg/pr-pilot/issues) - Bug reports
+- 💬 [GitHub Discussions](https://github.com/itsgg/pr-pilot/discussions) - Questions and discussions

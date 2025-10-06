@@ -35,7 +35,7 @@ PR-Pilot is an intelligent code review agent that automatically analyzes pull re
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-username/pr-pilot.git
+   git clone https://github.com/itsgg/pr-pilot.git
    cd pr-pilot
    ```
 
@@ -392,7 +392,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 ### Development Setup
 
 1. **Fork the repository**
-2. **Clone your fork**: `git clone https://github.com/your-username/pr-pilot.git`
+2. **Clone your fork**: `git clone https://github.com/itsgg/pr-pilot.git`
 3. **Install dependencies**: `npm install`
 4. **Create a branch**: `git checkout -b feature/your-feature`
 5. **Make your changes** and add tests
@@ -402,7 +402,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ### Reporting Issues
 
-Found a bug? Have a feature request? Please [open an issue](https://github.com/your-username/pr-pilot/issues) with:
+Found a bug? Have a feature request? Please [open an issue](https://github.com/itsgg/pr-pilot/issues) with:
 
 - Clear description of the problem
 - Steps to reproduce
@@ -422,7 +422,7 @@ This project is licensed under the ISC License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Documentation**: [Wiki](https://github.com/your-username/pr-pilot/wiki)
-- **Issues**: [GitHub Issues](https://github.com/your-username/pr-pilot/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-username/pr-pilot/discussions)
+- **Documentation**: [Wiki](https://github.com/itsgg/pr-pilot/wiki)
+- **Issues**: [GitHub Issues](https://github.com/itsgg/pr-pilot/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/itsgg/pr-pilot/discussions)
 - **Email**: <support@pr-pilot.dev>

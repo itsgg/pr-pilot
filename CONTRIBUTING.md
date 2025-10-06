@@ -37,7 +37,7 @@ We welcome feature suggestions! Please:
 1. **Fork the repository**
 
    ```bash
-   git clone https://github.com/your-username/pr-pilot.git
+   git clone https://github.com/itsgg/pr-pilot.git
    cd pr-pilot
    ```
 
@@ -151,7 +151,7 @@ We welcome feature suggestions! Please:
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-username/pr-pilot.git
+   git clone https://github.com/itsgg/pr-pilot.git
    cd pr-pilot
    ```
 
