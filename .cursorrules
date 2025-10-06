@@ -68,10 +68,120 @@ try {
 
 ## Testing
 
+### Unit Testing Requirements
+
 - Write testable code (pure functions)
 - Separate API calls from logic
 - Make dependencies injectable
 - Support --dry-run mode
+- Use Node.js built-in test runner (no external dependencies)
+- Test files: `*.test.js` alongside source files
+- Mock all external APIs (GitHub, Anthropic)
+- Test error scenarios and edge cases
+
+### Test Structure
+
+```javascript
+// Example test file: agent/lib/config.test.js
+import { describe, it, beforeEach, afterEach, mock } from 'node:test';
+import { readFileSync } from 'node:fs';
+import { loadConfig } from './config.js';
+
+// Mock file system
+mock.method(readFileSync, (path) => {
+  if (path.includes('agent.yaml')) {
+    return 'model: claude-sonnet-4-20250514\nmax_tokens: 4000';
+  }
+  throw new Error('File not found');
+});
+
+describe('Config Loader', () => {
+  it('should load valid config', async () => {
+    const config = await loadConfig('config/agent.yaml');
+    assert.strictEqual(config.model, 'claude-sonnet-4-20250514');
+    assert.strictEqual(config.max_tokens, 4000);
+  });
+
+  it('should throw on invalid config', async () => {
+    await assert.rejects(
+      () => loadConfig('invalid.yaml'),
+      /Invalid configuration/
+    );
+  });
+});
+```
+
+### Test Categories
+
+1. **Unit Tests** - Test individual functions in isolation
+   - Config loading and validation
+   - Diff parsing and filtering
+   - Cost estimation calculations
+   - Comment formatting
+   - JSON schema validation
+
+2. **Integration Tests** - Test component interactions
+   - GitHub client with mocked API
+   - Claude client with mocked responses
+   - End-to-end flow with dry-run mode
+
+3. **Error Handling Tests** - Test all error scenarios
+   - Invalid environment variables
+   - API failures and timeouts
+   - Invalid JSON responses
+   - Cost cap exceeded
+   - File filtering edge cases
+
+### Mocking Strategy
+
+- **GitHub API**: Mock Octokit responses with realistic data
+- **Anthropic API**: Mock Claude responses with valid JSON
+- **File System**: Mock file operations for config and metrics
+- **Console**: Mock console methods to verify logging
+
+### Test Data
+
+- Use realistic test fixtures for PR diffs
+- Include edge cases: binary files, large diffs, empty changes
+- Test with various file types and patterns
+- Mock responses match real API schemas
+
+### Coverage Requirements
+
+- Aim for 80%+ code coverage
+- Test all exported functions
+- Test all error paths
+- Test configuration validation
+- Test cost estimation accuracy
+
+### Test Commands
+
+```bash
+# Run all tests
+node --test
+
+# Run specific test file
+node --test agent/lib/config.test.js
+
+# Run with coverage (if available)
+node --test --experimental-test-coverage
+```
+
+### Test Organization
+
+```text
+agent/
+├── lib/
+│   ├── config.js
+│   ├── config.test.js
+│   ├── github-client.js
+│   ├── github-client.test.js
+│   └── ...
+└── __fixtures__/
+    ├── sample-pr-diff.txt
+    ├── claude-response.json
+    └── config-valid.yaml
+```
 
 ## GitHub Specifics
 
