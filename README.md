@@ -248,6 +248,12 @@ npm run test:demo
 # Test GitHub Actions workflow
 npm run test:workflow
 
+# Test performance
+npm run test:performance
+
+# Test configuration loading
+npm run test:config-loading
+
 # Validate configuration
 npm run validate:config
 

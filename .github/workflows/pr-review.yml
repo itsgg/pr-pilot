@@ -261,9 +261,5 @@ jobs:
       - name: Run performance test
         run: |
           echo "Running performance test..."
-          time node -e "
-            import { PRReviewer } from './agent/reviewer.js';
-            const reviewer = new PRReviewer({ dryRun: true });
-            console.log('✅ PRReviewer instantiated successfully');
-          "
+          time node scripts/performance-test.js
           echo "✅ Performance test completed"

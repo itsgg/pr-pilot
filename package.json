@@ -11,6 +11,8 @@
     "test:system": "node scripts/test-system.js",
     "test:demo": "node scripts/demo-system.js",
     "test:workflow": "node scripts/test-workflow.js",
+    "test:performance": "node scripts/performance-test.js",
+    "test:config-loading": "node scripts/test-config-loading.js",
     "validate:config": "node scripts/validate-config.js",
     "dry-run": "node agent/reviewer.js --dry-run"
   },
