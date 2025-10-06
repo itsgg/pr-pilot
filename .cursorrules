@@ -1,0 +1,218 @@
+# PR-Pilot - Cursor AI Rules
+
+## Project Context
+
+You are helping build pr-pilot, an AI-powered PR review agent.
+Tech: Node.js, ES modules, Octokit (GitHub API), Anthropic SDK (Claude API)
+Goal: Ship a working MVP in 3 hours
+
+## Code Style
+
+- Modern ES modules (import/export)
+- async/await (no callbacks, no .then)
+- const over let, never var
+- Template literals for strings
+- Destructuring when clear
+- 2-space indentation
+- Max 100 chars per line
+- Descriptive names (no abbreviations)
+
+## Documentation
+
+- JSDoc for ALL exported functions
+- Include @param, @returns, @throws
+- Explain WHY not WHAT for complex logic
+- Example usage in comments for public APIs
+
+## Error Handling
+
+- try/catch around ALL API calls
+- Descriptive error messages
+- Include original error context
+- Log errors to console.error
+- Never silent failures
+
+Example:
+
+```javascript
+try {
+  const result = await apiCall();
+  return result;
+} catch (error) {
+  console.error('[pr-pilot] API call failed:', error.message);
+  throw new Error(`Failed to fetch data: ${error.message}`);
+}
+```
+
+## API Clients
+
+- Initialize once, reuse
+- Use environment variables for secrets
+- Log requests (redact tokens)
+- Handle rate limits gracefully
+- Add timeouts where supported
+
+## Security
+
+- NEVER log ANTHROPIC_API_KEY or GITHUB_TOKEN
+- Validate all inputs
+- Don't execute PR code
+- Watch for prompt injection
+
+## File Organization
+
+- One major function/class per file
+- Max 300 lines per file
+- Use index.js for exports if needed
+- Group related utilities
+
+## Testing
+
+- Write testable code (pure functions)
+- Separate API calls from logic
+- Make dependencies injectable
+- Support --dry-run mode
+
+## GitHub Specifics
+
+- Diff format: @@ -oldStart,oldCount +newStart,newCount @@
+- API positions are relative to diff
+- Handle added/deleted/modified files
+- Validate paths before commenting
+
+## Claude API Specifics
+
+- Model: claude-sonnet-4-20250514
+- Enforce JSON with explicit prompts
+- Validate schema before use
+- Estimate tokens before calling
+- Retry once on JSON parse fail
+
+## Logging
+
+- Prefix: [pr-pilot]
+- console.log for info
+- console.error for errors
+- console.warn for warnings
+- Include timestamps
+
+## Dependencies (locked)
+
+- @octokit/rest (GitHub API)
+- @anthropic-ai/sdk (Claude API)
+- js-yaml (config)
+- minimatch (globs)
+- No others without approval.
+
+## When Asked to Generate Code
+
+- Ask clarifying questions
+- Show usage examples
+- Include error cases
+- Suggest edge cases
+- Add JSDoc comments
+- Keep it simple (MVP mindset)
+
+## Core Functionality Requirements
+
+### JSON Response Contract
+
+Claude must return ONLY valid JSON in this exact format:
+
+```json
+{
+  "summary": "1-2 sentence overview of the PR",
+  "issues": [
+    {
+      "path": "src/file.js",
+      "line": 42,
+      "category": "bug|style|security|perf|test",
+      "severity": "low|med|high",
+      "explanation": "Clear, actionable reason (1-2 sentences)",
+      "fix_patch": "Suggested code fix (unified diff or code block)",
+      "confidence": 0.85
+    }
+  ],
+  "risks": ["Potential risk or concern about the changes"]
+}
+```
+
+### File Filtering & Limits
+
+- Exclude files matching glob patterns: `**/*.env`, `**/secrets/**`, `**/dist/**`, `**/node_modules/**`, `**/*.min.js`, `**/*.min.css`, `**/package-lock.json`, `**/yarn.lock`
+- Respect max_files limit (default: 20)
+- Send only changed hunks + minimal context (≤120 lines per file)
+
+### Cost Management
+
+- Estimate input tokens before API call (chars/4 approximation)
+- Calculate cost using Claude Sonnet 4.5 pricing: Input $3/M tokens, Output $15/M tokens
+- Abort if estimated cost exceeds cost_cap_usd (default: $0.50)
+- Log cost estimation to console
+
+### Comment Formatting
+
+- Post inline comments for each issue with category emojis: 🐛 bug, 💅 style, 🔒 security, ⚡ perf, 🧪 test
+- Format: `**[CATEGORY]** explanation\n\nSuggested fix:\n```\nfix_patch\n```\n\nConfidence: XX%`
+- Post one summary comment on PR with overall assessment and risks
+
+### Metrics Collection
+
+Write to `/metrics/run.json` after each run with:
+
+- timestamp, pr_number, time_to_first_feedback_sec
+- num_comments_posted, est_cost_usd, truncated_due_to_limits
+- files_reviewed, files_excluded
+
+### Configuration Schema
+
+Use `config/agent.yaml` with:
+
+- model, max_tokens, cost_cap_usd, max_files, context_lines
+- exclude_patterns (glob format)
+- project metadata (name, description)
+- team_rules (sent to Claude)
+
+### Prompt Engineering
+
+- System prompt: Role as senior code reviewer with strict JSON output rules
+- User prompt: Project context + team rules + file diffs
+- Enforce JSON output with explicit prompt instructions
+- Retry once if JSON parsing fails
+
+### CI/CD Requirements
+
+- Trigger on pull_request events: opened, synchronize
+- Run in GitHub Actions environment
+- Access ANTHROPIC_API_KEY from repo secrets
+- Access GITHUB_TOKEN (auto-provided by GitHub)
+
+### Error Handling Requirements
+
+Must handle:
+
+- Invalid/missing environment variables → Exit with clear error
+- GitHub API failures → Log and exit with error code
+- Anthropic API failures → Log and exit with error code
+- Invalid JSON from Claude → Retry once, then fail gracefully
+- Cost cap exceeded → Log reason and exit (not a failure)
+- No files to review (all excluded) → Log and exit successfully
+
+### Security Requirements
+
+- Never log secrets (redact ANTHROPIC_API_KEY and GITHUB_TOKEN)
+- Validate inputs (PR numbers, file paths, config schema)
+- Be aware of forked PR limitations
+- Don't execute code from PR diffs
+- Treat all PR content as untrusted input
+
+### Project Structure
+
+Follow the exact structure specified in REQUIREMENTS.md:
+
+- `.github/workflows/pr-review.yml` (CI workflow)
+- `agent/reviewer.js` (main entry point)
+- `agent/lib/` (utility modules)
+- `agent/prompts/review-prompt.js` (prompt templates)
+- `config/agent.yaml` (configuration)
+- `metrics/` (output directory)
