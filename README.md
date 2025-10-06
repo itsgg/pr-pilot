@@ -166,7 +166,7 @@ Options:
 
 PR-Pilot follows a modular architecture with clear separation of concerns:
 
-```
+```text
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   GitHub API    │    │   Claude API    │    │   File System   │
 │   (Octokit)     │    │  (Anthropic)    │    │   (Config)      │
@@ -206,7 +206,7 @@ PR-Pilot follows a modular architecture with clear separation of concerns:
 
 ### Project Structure
 
-```
+```text
 pr-pilot/
 ├── agent/                    # Main application code
 │   ├── lib/                 # Core libraries
@@ -408,13 +408,3 @@ This project is licensed under the ISC License - see the [LICENSE](LICENSE) file
 - **Issues**: [GitHub Issues](https://github.com/your-username/pr-pilot/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/your-username/pr-pilot/discussions)
 - **Email**: <support@pr-pilot.dev>
-
----
-
-<div align="center">
-
-**Made with ❤️ by the PR-Pilot team**
-
-[⭐ Star us on GitHub](https://github.com/your-username/pr-pilot) • [🐛 Report Issues](https://github.com/your-username/pr-pilot/issues) • [💬 Join Discussions](https://github.com/your-username/pr-pilot/discussions)
-
-</div>
