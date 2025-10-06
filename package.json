@@ -2,18 +2,24 @@
   "name": "pr-pilot",
   "version": "1.0.0",
   "description": "AI-powered Pull Request reviews using Claude",
-  "main": "index.js",
+  "main": "agent/reviewer.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node agent/reviewer.js",
+    "test": "node --test",
+    "test:coverage": "node --test --experimental-test-coverage",
+    "dry-run": "node agent/reviewer.js --dry-run"
   },
   "keywords": [
     "pr",
     "review",
-    "claude"
+    "claude",
+    "ai",
+    "github",
+    "automation"
   ],
   "author": "Ganesh Gunasegaran <me@itsgg.com>",
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",
     "@octokit/rest": "^22.0.0",
@@ -22,5 +28,8 @@
   },
   "devDependencies": {
     "prettier": "^3.6.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

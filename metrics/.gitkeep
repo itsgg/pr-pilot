@@ -1,0 +1,2 @@
+# This file ensures the metrics directory is tracked by git
+# Runtime metrics will be written to run.json in this directory

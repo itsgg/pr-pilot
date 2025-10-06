@@ -1,0 +1,118 @@
+# PR-Pilot Configuration
+# This file contains all configuration options for the PR review agent
+
+# Claude model to use
+model: claude-sonnet-4-20250514
+
+# Maximum tokens per API request
+max_tokens: 4000
+
+# Cost cap in USD (abort if exceeded)
+cost_cap_usd: 0.50
+
+# Maximum files to review per PR
+max_files: 20
+
+# Lines of context around each change
+context_lines: 60
+
+# File exclusion patterns (glob format)
+exclude_patterns:
+  - "**/*.env"
+  - "**/*.env.*"
+  - "**/secrets/**"
+  - "**/dist/**"
+  - "**/build/**"
+  - "**/node_modules/**"
+  - "**/*.min.js"
+  - "**/*.min.css"
+  - "**/package-lock.json"
+  - "**/yarn.lock"
+  - "**/.git/**"
+  - "**/coverage/**"
+  - "**/*.log"
+  - "**/tmp/**"
+  - "**/temp/**"
+
+# Project metadata
+project:
+  name: "PR-Pilot"
+  description: "AI-powered Pull Request review agent using Claude"
+
+# Team coding rules (sent to Claude)
+team_rules:
+  - "No hardcoded secrets or API keys"
+  - "Use async/await, not callbacks"
+  - "Add JSDoc comments to exported functions"
+  - "Prefer const over let, never var"
+  - "Handle errors explicitly with try/catch"
+  - "Use template literals for string interpolation"
+  - "Use descriptive variable names (no abbreviations)"
+  - "Keep functions small and focused (max 50 lines)"
+  - "Add input validation for all public functions"
+  - "Use 2-space indentation consistently"
+  - "Max 100 characters per line"
+  - "Export only what's necessary from modules"
+  - "Use destructuring when it improves readability"
+  - "Prefer early returns over nested conditions"
+  - "Add meaningful comments for complex business logic"
+
+# Comment formatting options
+comment_format:
+  # Category emojis for inline comments
+  category_emojis:
+    bug: "🐛"
+    style: "💅"
+    security: "🔒"
+    perf: "⚡"
+    test: "🧪"
+  
+  # Confidence threshold (suppress comments below this)
+  min_confidence: 0.6
+  
+  # Maximum length for inline comments
+  max_comment_length: 2000
+
+# GitHub API settings
+github:
+  # Timeout for API requests (seconds)
+  timeout: 30
+  
+  # Retry configuration
+  retries: 3
+  retry_delay: 1000  # milliseconds
+
+# Claude API settings
+claude:
+  # Timeout for API requests (seconds)
+  timeout: 60
+  
+  # Retry configuration
+  retries: 2
+  retry_delay: 2000  # milliseconds
+  
+  # Temperature for response generation (0.0 to 1.0)
+  temperature: 0.1
+
+# Logging configuration
+logging:
+  # Log level (debug, info, warn, error)
+  level: "info"
+  
+  # Include timestamps in logs
+  timestamps: true
+  
+  # Redact sensitive information
+  redact_secrets: true
+
+# Metrics configuration
+metrics:
+  # Enable metrics collection
+  enabled: true
+  
+  # Metrics output file
+  output_file: "metrics/run.json"
+  
+  # Include detailed timing information
+  detailed_timing: true
+
