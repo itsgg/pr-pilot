@@ -13,6 +13,8 @@
     "test:workflow": "node scripts/test-workflow.js",
     "test:performance": "node scripts/performance-test.js",
     "test:config-loading": "node scripts/test-config-loading.js",
+    "setup:test-repo": "bash scripts/setup-test-repo.sh",
+    "generate:test-pr": "node scripts/generate-test-pr.js",
     "validate:config": "node scripts/validate-config.js",
     "dry-run": "node agent/reviewer.js --dry-run"
   },
