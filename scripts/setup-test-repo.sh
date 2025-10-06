@@ -95,9 +95,23 @@ else
     read -p "Enter your GitHub username: " GITHUB_USERNAME
     REPO_URL="https://github.com/$GITHUB_USERNAME/$REPO_NAME.git"
     
-    # Add remote and push
+    # Add remote
     git remote add origin "$REPO_URL"
-    git push -u origin main
+    
+    echo ""
+    echo "🔑 Authentication required:"
+    echo "GitHub no longer supports password authentication."
+    echo "You need to use a Personal Access Token."
+    echo ""
+    echo "1. Go to: https://github.com/settings/tokens"
+    echo "2. Click 'Generate new token (classic)'"
+    echo "3. Select scopes: repo, workflow, write:packages"
+    echo "4. Copy the token"
+    echo ""
+    read -p "Enter your Personal Access Token: " GITHUB_TOKEN
+    
+    # Use token for authentication
+    git push https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/$GITHUB_USERNAME/$REPO_NAME.git main
     echo "✅ Repository setup complete: $REPO_URL"
 fi
 
