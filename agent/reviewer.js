@@ -158,7 +158,8 @@ export class PRReviewer {
    */
   async getPullRequestInfo(prNumber, repository) {
     try {
-      const pr = await this.githubClient.getPullRequest(prNumber, repository);
+      const { owner, repo } = validateRepository(repository);
+      const pr = await this.githubClient.getPullRequest(owner, repo, prNumber);
       return {
         title: pr.title || '',
         description: pr.body || '',
@@ -183,7 +184,8 @@ export class PRReviewer {
    */
   async getPullRequestDiff(prNumber, repository) {
     try {
-      const diff = await this.githubClient.getPullRequestDiff(prNumber, repository);
+      const { owner, repo } = validateRepository(repository);
+      const diff = await this.githubClient.getPullRequestDiff(owner, repo, prNumber);
       return diff;
     } catch (error) {
       console.error('[pr-pilot] Failed to get PR diff:', error.message);
@@ -245,26 +247,21 @@ export class PRReviewer {
         projectContext: this.config.project
       });
 
-      // Estimate tokens
-      const inputTokens = this.claudeClient.estimateTokens(systemPrompt, userPrompt);
-      const outputTokens = this.config.max_tokens;
-
       // Calculate cost
-      const costEstimate = estimateApiCost(inputTokens, outputTokens, this.config.model);
-      const exceedsCap = checkCostCap(costEstimate.estCostUsd, this.config.cost_cap_usd);
+      const costEstimate = estimateApiCost(systemPrompt, userPrompt);
+      const costCheck = checkCostCap(costEstimate, this.config.cost_cap_usd);
+      const exceedsCap = costCheck.exceedsCap;
 
       // Record cost metrics
       this.metricsCollector.recordCostStats({
-        est_cost_usd: costEstimate.estCostUsd,
-        tokens_used: inputTokens + outputTokens,
+        est_cost_usd: costEstimate.costUsd,
+        tokens_used: costEstimate.totalTokens,
         truncated_due_to_limits: exceedsCap
       });
 
       return {
         ...costEstimate,
-        exceedsCap: exceedsCap,
-        inputTokens: inputTokens,
-        outputTokens: outputTokens
+        exceedsCap: exceedsCap
       };
     } catch (error) {
       console.error('[pr-pilot] Failed to estimate cost:', error.message);
@@ -340,7 +337,8 @@ export class PRReviewer {
       for (const issue of filteredIssues) {
         try {
           const comment = this.commentFormatter.createLineComment(issue);
-          await this.githubClient.postReviewComment(prNumber, repository, comment);
+          const { owner, repo } = validateRepository(repository);
+          await this.githubClient.postReviewComment(owner, repo, prNumber, comment);
           commentsPosted++;
         } catch (error) {
           console.warn(`[pr-pilot] Failed to post comment for issue: ${error.message}`);
@@ -354,7 +352,8 @@ export class PRReviewer {
           reviewResponse,
           this.metricsCollector.getMetrics()
         );
-        await this.githubClient.postReview(prNumber, repository, {
+        const { owner, repo } = validateRepository(repository);
+        await this.githubClient.postReview(owner, repo, prNumber, {
           body: summaryComment,
           event: 'COMMENT'
         });
@@ -435,7 +434,10 @@ export class PRReviewer {
       }
 
       // Run the review
-      const result = await this.reviewPullRequest();
+      const result = await this.reviewPullRequest({
+        prNumber: this.options.prNumber,
+        repository: this.options.repository
+      });
       
       console.log('[pr-pilot] Review completed successfully');
       console.log(`[pr-pilot] ${result.issuesFound} issues found, ${result.commentsPosted} comments posted`);
@@ -488,10 +490,16 @@ async function main() {
       const arg = args[i];
       if (arg === '--dry-run') {
         options.dryRun = true;
+      } else if (arg.startsWith('--config=')) {
+        options.configPath = arg.split('=')[1];
       } else if (arg === '--config' && i + 1 < args.length) {
         options.configPath = args[++i];
+      } else if (arg.startsWith('--pr=')) {
+        options.prNumber = parseInt(arg.split('=')[1], 10);
       } else if (arg === '--pr' && i + 1 < args.length) {
         options.prNumber = parseInt(args[++i], 10);
+      } else if (arg.startsWith('--repo=')) {
+        options.repository = arg.split('=')[1];
       } else if (arg === '--repo' && i + 1 < args.length) {
         options.repository = args[++i];
       }
