@@ -236,8 +236,20 @@ pr-pilot/
 ### Running Tests
 
 ```bash
-# Run all tests
+# Run all unit tests
 npm test
+
+# Run system tests
+npm run test:system
+
+# Run demo with sample PR
+npm run test:demo
+
+# Test GitHub Actions workflow
+npm run test:workflow
+
+# Validate configuration
+npm run validate:config
 
 # Run specific test file
 node --test agent/lib/config.test.js

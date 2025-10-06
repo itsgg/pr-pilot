@@ -66,20 +66,7 @@ jobs:
       - name: Validate configuration
         run: |
           echo "Validating configuration..."
-          node -e "
-            import { loadConfig } from './agent/lib/config.js';
-            try {
-              const config = await loadConfig('config/agent.yaml');
-              console.log('✅ Configuration is valid');
-              console.log('Model:', config.model);
-              console.log('Max tokens:', config.max_tokens);
-              console.log('Cost cap: $' + config.cost_cap_usd);
-              console.log('Max files:', config.max_files);
-            } catch (error) {
-              console.error('❌ Configuration validation failed:', error.message);
-              process.exit(1);
-            }
-          "
+          node scripts/validate-config.js
 
       - name: Check environment variables
         run: |

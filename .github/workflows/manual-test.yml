@@ -48,14 +48,7 @@ jobs:
 
       - name: Test configuration
         run: |
-          node -e "
-            import { loadConfig } from './agent/lib/config.js';
-            const config = await loadConfig('config/agent.yaml');
-            console.log('✅ Configuration loaded successfully');
-            console.log('Model:', config.model);
-            console.log('Max tokens:', config.max_tokens);
-            console.log('Cost cap: $' + config.cost_cap_usd);
-          "
+          node scripts/validate-config.js
 
       - name: Test PR-Pilot
         run: |

@@ -8,6 +8,10 @@
     "start": "node agent/reviewer.js",
     "test": "node --test",
     "test:coverage": "node --test --experimental-test-coverage",
+    "test:system": "node scripts/test-system.js",
+    "test:demo": "node scripts/demo-system.js",
+    "test:workflow": "node scripts/test-workflow.js",
+    "validate:config": "node scripts/validate-config.js",
     "dry-run": "node agent/reviewer.js --dry-run"
   },
   "keywords": [
