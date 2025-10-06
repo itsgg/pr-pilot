@@ -6,6 +6,7 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk';
+import { sanitizeText, validateClaudeResponse, redactSecrets } from './security.js';
 
 /**
  * Represents a review issue found by Claude
@@ -112,8 +113,15 @@ export class ClaudeClient {
    */
   parseReviewResponse(responseText) {
     try {
+      // Sanitize response text to prevent injection
+      const sanitizedText = sanitizeText(responseText, { 
+        maxLength: 50000,
+        escapeSpecialChars: true,
+        removeMarkdown: false
+      });
+
       // Try to extract JSON from the response
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      const jsonMatch = sanitizedText.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
         throw new Error('No JSON found in Claude response');
       }
@@ -121,13 +129,13 @@ export class ClaudeClient {
       const jsonStr = jsonMatch[0];
       const parsed = JSON.parse(jsonStr);
 
-      // Validate the response structure
-      this.validateReviewResponse(parsed);
+      // Validate and sanitize the response structure
+      const validatedResponse = validateClaudeResponse(parsed);
 
-      return parsed;
+      return validatedResponse;
     } catch (error) {
       console.error('[pr-pilot] Failed to parse Claude response:', error.message);
-      console.error('[pr-pilot] Response text:', responseText);
+      console.error('[pr-pilot] Response text:', redactSecrets(responseText.substring(0, 500)));
       
       // Return a fallback response
       return {

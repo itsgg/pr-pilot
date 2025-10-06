@@ -13,6 +13,7 @@ import { MetricsCollector } from './lib/metrics.js';
 import { parseDiff, filterFiles, limitFiles, getDiffStats } from './lib/diff-parser.js';
 import { estimateApiCost, checkCostCap } from './lib/cost-estimator.js';
 import { createSystemPrompt, createUserPrompt } from './prompts/review-prompt.js';
+import { validatePRNumber, validateRepository, RateLimiter } from './lib/security.js';
 
 /**
  * Main PR Reviewer class
@@ -28,6 +29,7 @@ export class PRReviewer {
     this.claudeClient = null;
     this.commentFormatter = null;
     this.metricsCollector = null;
+    this.rateLimiter = new RateLimiter(10, 60000); // 10 requests per minute
     this.options = {
       configPath: options.configPath || 'config/agent.yaml',
       dryRun: options.dryRun || false,
@@ -79,6 +81,10 @@ export class PRReviewer {
     if (!prNumber || !repository) {
       throw new Error('PR number and repository are required');
     }
+
+    // Validate inputs
+    const validatedPRNumber = validatePRNumber(prNumber);
+    const validatedRepo = validateRepository(repository);
 
     try {
       console.log(`[pr-pilot] Starting review for PR #${prNumber} in ${repository}`);

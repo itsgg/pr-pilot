@@ -5,6 +5,8 @@
  * Parses unified diffs and extracts hunks for review
  */
 
+import { validateFilePath, sanitizeText } from './security.js';
+
 /**
  * Represents a parsed diff hunk
  * @typedef {Object} DiffHunk
@@ -155,10 +157,24 @@ function createNewFileDiff(diffLine) {
   const oldPath = match ? match[1] : '';
   const newPath = match ? match[2] : '';
 
+  // Validate file paths for security
+  let validatedOldPath = '';
+  let validatedNewPath = '';
+  
+  try {
+    validatedOldPath = oldPath ? validateFilePath(oldPath) : '';
+    validatedNewPath = newPath ? validateFilePath(newPath) : '';
+  } catch (error) {
+    console.warn(`[pr-pilot] Invalid file path detected: ${error.message}`);
+    // Use sanitized fallback
+    validatedOldPath = sanitizeText(oldPath, { maxLength: 500 });
+    validatedNewPath = sanitizeText(newPath, { maxLength: 500 });
+  }
+
   return {
-    path: newPath || oldPath,
-    oldPath: oldPath,
-    newPath: newPath,
+    path: validatedNewPath || validatedOldPath,
+    oldPath: validatedOldPath,
+    newPath: validatedNewPath,
     status: 'modified',
     hunks: [],
     rawDiff: diffLine + '\n',

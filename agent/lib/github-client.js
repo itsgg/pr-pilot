@@ -6,6 +6,7 @@
  */
 
 import { Octokit } from '@octokit/rest';
+import { validatePRNumber, validateRepository, redactSecrets } from './security.js';
 
 /**
  * GitHub client class for PR operations
@@ -46,12 +47,17 @@ export class GitHubClient {
    */
   async getPullRequest(owner, repo, prNumber) {
     try {
-      console.log(`[pr-pilot] Fetching PR #${prNumber} from ${owner}/${repo}`);
+      // Validate inputs
+      const validatedOwner = validateRepository(`${owner}/${repo}`).owner;
+      const validatedRepo = validateRepository(`${owner}/${repo}`).repo;
+      const validatedPRNumber = validatePRNumber(prNumber);
+
+      console.log(`[pr-pilot] Fetching PR #${validatedPRNumber} from ${validatedOwner}/${validatedRepo}`);
 
       const { data: pr } = await this.octokit.rest.pulls.get({
-        owner,
-        repo,
-        pull_number: prNumber
+        owner: validatedOwner,
+        repo: validatedRepo,
+        pull_number: validatedPRNumber
       });
 
       console.log(`[pr-pilot] PR found: "${pr.title}" by ${pr.user.login}`);

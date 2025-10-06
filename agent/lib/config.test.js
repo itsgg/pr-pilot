@@ -104,9 +104,12 @@ describe('Config Loader', () => {
 
       const redacted = redactConfig(config);
 
-      assert.strictEqual(redacted.github.token, '***REDACTED***');
-      assert.strictEqual(redacted.claude.api_key, '***REDACTED***');
-      assert.strictEqual(redacted.model, 'claude-sonnet-4-20250514');
+      // The new implementation uses string-based redaction
+      const redactedStr = JSON.stringify(redacted);
+      assert(redactedStr.includes('***REDACTED***'));
+      assert(!redactedStr.includes('secret-token'));
+      assert(!redactedStr.includes('secret-key'));
+      assert(redactedStr.includes('claude-sonnet-4-20250514'));
     });
   });
 });

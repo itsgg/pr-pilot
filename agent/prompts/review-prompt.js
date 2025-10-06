@@ -5,6 +5,8 @@
  * Contains system and user prompt templates for code review
  */
 
+import { sanitizeText } from '../lib/security.js';
+
 /**
  * Creates the system prompt for code review
  * @param {Object} options - Options for prompt generation
@@ -138,20 +140,30 @@ export function createUserPrompt(options = {}) {
     techStack = 'Node.js, JavaScript, ES modules'
   } = projectContext;
 
-  let prompt = `Please review this pull request for the ${name} project.
+  // Sanitize all user inputs to prevent prompt injection
+  const sanitizedTitle = sanitizeText(title, { maxLength: 200 });
+  const sanitizedDescription = sanitizeText(description, { maxLength: 1000 });
+  const sanitizedAuthor = sanitizeText(author, { maxLength: 100 });
+  const sanitizedBaseBranch = sanitizeText(baseBranch, { maxLength: 100 });
+  const sanitizedHeadBranch = sanitizeText(headBranch, { maxLength: 100 });
+  const sanitizedProjectName = sanitizeText(name, { maxLength: 100 });
+  const sanitizedProjectDesc = sanitizeText(projectDesc, { maxLength: 500 });
+  const sanitizedTechStack = sanitizeText(techStack, { maxLength: 200 });
+
+  let prompt = `Please review this pull request for the ${sanitizedProjectName} project.
 
 ## Project Context
-**Name**: ${name}
-**Description**: ${projectDesc}
-**Tech Stack**: ${techStack}
+**Name**: ${sanitizedProjectName}
+**Description**: ${sanitizedProjectDesc}
+**Tech Stack**: ${sanitizedTechStack}
 
 ## Pull Request Information
-**Title**: ${title}
-**Author**: ${author}
-**Branch**: ${headBranch} → ${baseBranch}`;
+**Title**: ${sanitizedTitle}
+**Author**: ${sanitizedAuthor}
+**Branch**: ${sanitizedHeadBranch} → ${sanitizedBaseBranch}`;
 
-  if (description) {
-    prompt += `\n**Description**: ${description}`;
+  if (sanitizedDescription) {
+    prompt += `\n**Description**: ${sanitizedDescription}`;
   }
 
   prompt += `\n\n## Files Changed\n`;

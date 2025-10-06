@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
+import { redactSecrets, validateConfigSecurity } from './security.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -218,6 +219,9 @@ export function loadConfig(configPath = 'config/agent.yaml') {
 
     // Validate configuration
     validateConfig(config);
+    
+    // Validate configuration for security issues
+    validateConfigSecurity(config);
 
     console.log(`[pr-pilot] Configuration loaded successfully`);
     console.log(`[pr-pilot] Model: ${config.model}`);
@@ -296,14 +300,22 @@ export function validateEnvironment() {
 export function redactConfig(config) {
   const redacted = { ...config };
   
-  // Redact any potential secrets
-  if (redacted.github?.token) {
-    redacted.github.token = '***REDACTED***';
-  }
+  // Convert to string and redact secrets
+  const configStr = JSON.stringify(redacted);
+  const redactedStr = redactSecrets(configStr);
   
-  if (redacted.claude?.api_key) {
-    redacted.claude.api_key = '***REDACTED***';
-  }
+  try {
+    return JSON.parse(redactedStr);
+  } catch (error) {
+    // Fallback to manual redaction if JSON parsing fails
+    if (redacted.github?.token) {
+      redacted.github.token = '***REDACTED***';
+    }
+    
+    if (redacted.claude?.api_key) {
+      redacted.claude.api_key = '***REDACTED***';
+    }
 
-  return redacted;
+    return redacted;
+  }
 }
