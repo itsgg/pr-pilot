@@ -21,7 +21,8 @@ index 1234567..abcdefg 100644
 @@ -1,5 +1,6 @@
  const express = require('express');
  const app = express();
-+const API_KEY = 'sk-1234567890abcdef'; // Security issue: hardcoded API key
+// Demo API key for testing purposes only - not used in production
+const API_KEY = 'sk-demo-key-for-testing-only';
  
  app.get('/', (req, res) => {
    res.send('Hello World!');

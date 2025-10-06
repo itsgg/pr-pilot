@@ -23,7 +23,8 @@ index 1234567..abcdefg 100644
 @@ -1,15 +1,25 @@
  const jwt = require('jsonwebtoken');
  const bcrypt = require('bcrypt');
-+const API_KEY = 'sk-1234567890abcdefghijklmnopqrstuvwxyz'; // Security issue: hardcoded API key
+// Demo API key for testing purposes only - not used in production
+const API_KEY = 'sk-demo-key-for-testing-only';
  
  const SALT_ROUNDS = 10;
  

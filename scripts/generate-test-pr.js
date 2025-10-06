@@ -13,7 +13,8 @@ const TEST_FILES = {
 const bcrypt = require('bcrypt');
 
 // Security issue: hardcoded API key
-const API_KEY = 'sk-1234567890abcdefghijklmnopqrstuvwxyz';
+// Demo API key for testing purposes only - not used in production
+const API_KEY = 'sk-demo-key-for-testing-only';
 
 const SALT_ROUNDS = 10;
 
