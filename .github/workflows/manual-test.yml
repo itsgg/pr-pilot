@@ -1,0 +1,90 @@
+name: Manual Test PR-Pilot
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to test (required)'
+        required: true
+        type: string
+      dry_run:
+        description: 'Run in dry-run mode (no comments posted)'
+        required: false
+        type: boolean
+        default: true
+      repository:
+        description: 'Repository to test (owner/repo)'
+        required: false
+        type: string
+        default: ''
+
+env:
+  NODE_VERSION: '18'
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  manual-test:
+    name: Manual Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Test configuration
+        run: |
+          node -e "
+            import { loadConfig } from './agent/lib/config.js';
+            const config = await loadConfig('config/agent.yaml');
+            console.log('✅ Configuration loaded successfully');
+            console.log('Model:', config.model);
+            console.log('Max tokens:', config.max_tokens);
+            console.log('Cost cap: $' + config.cost_cap_usd);
+          "
+
+      - name: Test PR-Pilot
+        run: |
+          echo "🧪 Testing PR-Pilot with PR #${{ github.event.inputs.pr_number }}"
+          echo "Repository: ${{ github.event.inputs.repository || github.repository }}"
+          echo "Dry run: ${{ github.event.inputs.dry_run }}"
+          
+          # Set environment variables
+          export PR_NUMBER="${{ github.event.inputs.pr_number }}"
+          export REPOSITORY="${{ github.event.inputs.repository || github.repository }}"
+          export DRY_RUN="${{ github.event.inputs.dry_run }}"
+          
+          # Run the test
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            echo "Running in dry-run mode..."
+            node agent/reviewer.js --dry-run --pr "${{ github.event.inputs.pr_number }}" --repo "${{ github.event.inputs.repository || github.repository }}"
+          else
+            echo "Running in live mode..."
+            node agent/reviewer.js --pr "${{ github.event.inputs.pr_number }}" --repo "${{ github.event.inputs.repository || github.repository }}"
+          fi
+          
+          echo "✅ Test completed successfully"
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.event.inputs.pr_number }}-${{ github.run_number }}
+          path: |
+            metrics/run.json
+            logs/
+          retention-days: 7

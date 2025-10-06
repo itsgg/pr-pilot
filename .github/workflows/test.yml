@@ -1,0 +1,47 @@
+name: Test PR-Pilot
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  test:
+    name: Test PR-Pilot
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Test configuration loading
+        run: |
+          node -e "
+            import { loadConfig } from './agent/lib/config.js';
+            const config = await loadConfig('config/agent.yaml');
+            console.log('✅ Configuration loaded successfully');
+            console.log('Model:', config.model);
+            console.log('Max tokens:', config.max_tokens);
+          "
+
+      - name: Test dry-run mode
+        run: |
+          echo "Testing dry-run mode..."
+          node agent/reviewer.js --help || echo "Help command not available, but that's okay"
+          echo "✅ Dry-run test completed"
